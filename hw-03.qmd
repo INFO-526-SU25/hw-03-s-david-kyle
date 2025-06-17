@@ -1,17 +1,88 @@
 ---
 title: "HW 03"
-author: "INSERT YOUR NAME HERE"
+author: "Seldon David Kyle"
 format:
   html:
     embed-resources: true
 toc: true
+execute:
+  warning: false
+  error: false
+  message: false
 ---
+
+```{r}
+#| label: load-pkgs
+#| message: false
+#| echo: false
+
+if (!require("pacman")) 
+  install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               magick)
+```
 
 ## 1 - Du Bois challenge.
 
 ```{r}
-#| label: label-me-1
+income <- read_csv("data/income.csv")
+glimpse(income)
 
+```
+
+```{r}
+library(tidyverse)
+
+
+data_long <- income |>
+  pivot_longer(cols = Rent:Other, names_to = "type", values_to = "measurement") |>
+  mutate(
+    # Rename the label before setting factor levels
+    Class = recode(Class, "$1000 AND OVER" = "Over $1000"),
+    type = factor(type, levels = c("Rent", "Food", "Clothes", "Tax", "Other")),
+    Class = factor(Class, levels = rev(c(
+      "$100-200", "$200-300", "$300-400", "$400-500",
+      "$500-750", "$750-1000", "Over $1000"
+    )))
+  )
+
+# Replace zeros if needed for visibility
+data_long$measurement[data_long$measurement == 0] <- 0.1
+
+# Define colors
+category_colors <- c(
+  Rent    = "black",
+  Food    = "mediumorchid4",
+  Clothes = "lightsalmon1",
+  Tax     = "slategray3",
+  Other   = "gray75"
+)
+
+# Plot
+ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  scale_y_reverse() +
+  scale_fill_manual(values = category_colors) +
+  coord_flip() +
+  labs(
+    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES IN ATLANTA, GA",
+    subtitle = "Simplified Du Bois Reproduction",
+    x = NULL, y = "Percent of Income"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0, size = 12),
+    axis.text.y = element_text(face = "bold"),
+    panel.grid.major.y = element_blank(),
+    legend.title = element_blank()
+  )
+
+
+```
+
+```{r}
+unique(income$Class)
 ```
 
 ## 2 - COVID survey - interpret
@@ -22,7 +93,6 @@ toc: true
 ```
 
 ## 3 - COVID survey - reconstruct
-
 
 ## 4 - COVID survey - re-reconstruct
 
