@@ -38,12 +38,10 @@ library(tidyverse)
 data_long <- income |>
   pivot_longer(cols = Rent:Other, names_to = "type", values_to = "measurement") |>
   mutate(
-    # Rename the label before setting factor levels
-    Class = recode(Class, "$1000 AND OVER" = "Over $1000"),
     type = factor(type, levels = c("Rent", "Food", "Clothes", "Tax", "Other")),
     Class = factor(Class, levels = rev(c(
       "$100-200", "$200-300", "$300-400", "$400-500",
-      "$500-750", "$750-1000", "Over $1000"
+      "$500-750", "$750-1000", "$1000 AND OVER"
     )))
   )
 
@@ -60,23 +58,43 @@ category_colors <- c(
 )
 
 # Plot
-ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
-  geom_bar(stat = "identity", width = 0.6) +
+ggplot(data_long, aes(x = Class, y = measurement, fill = type))+
+  
+  geom_bar(stat = "identity", width = 0.8) +
+  
   scale_y_reverse() +
+  
   scale_fill_manual(values = category_colors) +
+  
   coord_flip() +
+  
+  geom_text(
+  aes(label = ifelse(measurement >= 1, paste0(measurement, "%"), "")),
+  position = position_stack(vjust = 0.5),
+  size = 3,
+  color = "white"
+  ) +
+  
   labs(
     title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES IN ATLANTA, GA",
     subtitle = "Simplified Du Bois Reproduction",
-    x = NULL, y = "Percent of Income"
+    x = NULL, y = NULL
   ) +
+  
   theme_minimal(base_size = 12) +
+
   theme(
-    plot.title = element_text(face = "bold", hjust = 0, size = 12),
-    axis.text.y = element_text(face = "bold"),
-    panel.grid.major.y = element_blank(),
-    legend.title = element_blank()
-  )
+  plot.title = element_text(face = "bold", hjust = 0, size = 12),
+  axis.text.y = element_text(face = "bold"),
+  axis.text.x = element_blank(),           # ← removes x-axis tick labels
+  axis.ticks.x = element_blank(),          # ← removes x-axis tick marks
+  panel.grid.major.x = element_blank(),    # ← removes vertical grid lines
+  panel.grid.major.y = element_blank(),    # ← removes horizontal grid lines
+  legend.title = element_blank(),
+  legend.position = "top",
+  legend.direction = "horizontal",
+  legend.justification = "center"
+)
 
 
 ```
