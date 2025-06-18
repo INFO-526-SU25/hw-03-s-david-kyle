@@ -20,7 +20,7 @@ if (!require("pacman"))
   install.packages("pacman")
 
 pacman::p_load(tidyverse,
-               magick)
+               patchwork               )
 ```
 
 ## 1 - Du Bois challenge.
@@ -32,8 +32,6 @@ glimpse(income)
 ```
 
 ```{r}
-library(tidyverse)
-library(patchwork)
 
 # Recode final class label for line break
 income <- income |>
@@ -41,7 +39,7 @@ income <- income |>
     Class = recode(Class, "$1000 AND OVER" = "$1000\nAND OVER")
   )
 
-# === LEFT TABLE PLOT ===
+# left table
 label_table <- income |>
   mutate(
     Class = factor(Class, levels = rev(c(
@@ -51,29 +49,21 @@ label_table <- income |>
     row = as.numeric(Class)
   ) |>
   ggplot(aes(y = Class)) +
-  # Border for each row
   geom_tile(aes(x = 1.5, width = 2, height = 1), fill = NA, color = "black") +
-
-  # Horizontal grid lines aligned with tile edges
   geom_segment(
     data = tibble(y = seq(0.5, 7.5, 1)),
     aes(x = 0.9, xend = 2.9, y = y, yend = y),
     inherit.aes = FALSE,
     color = "gray70", linewidth = 0.2
   ) +
-
-  # Vertical grid lines (now with precise segment endpoints)
   geom_segment(
     data = tibble(x = c(0.9, 1.95, 2.9)),
     aes(x = x, xend = x, y = 0.5, yend = 7.5),
     inherit.aes = FALSE,
     color = "gray70", linewidth = 0.2
   ) +
-
-  # Table text: class and income
   geom_text(aes(x = 1, label = Class), hjust = 0, size = 3.2, fontface = "bold", family = "mono") +
   geom_text(aes(x = 2, label = paste0("$", Average_Income)), hjust = 0, size = 3.2, family = "mono") +
-
   scale_y_discrete(limits = rev(c(
     "$100-200", "$200-300", "$300-400", "$400-500",
     "$500-750", "$750-1000", "$1000\nAND OVER"
@@ -83,10 +73,11 @@ label_table <- income |>
   theme_void() +
   theme(
     plot.margin = margin(5, 0, 5, 5),
-    axis.text.y = element_blank()
+    axis.text.y = element_blank(),
+    plot.background = element_rect(fill = "#f3eacb", color = NA)
   )
 
-# === BAR CHART PLOT ===
+# bar chart
 data_long <- income |>
   pivot_longer(cols = Rent:Other, names_to = "type", values_to = "measurement") |>
   mutate(
@@ -97,10 +88,8 @@ data_long <- income |>
     )))
   )
 
-# Replace 0% values with 0.1% for visibility
 data_long$measurement[data_long$measurement == 0] <- 0.1
 
-# Fill color palette
 category_colors <- c(
   Rent = "black",
   Food = "mediumorchid4",
@@ -109,7 +98,6 @@ category_colors <- c(
   Other = "gray75"
 )
 
-# Bar plot
 bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
   geom_bar(stat = "identity", width = 0.8) +
   geom_text(
@@ -122,9 +110,9 @@ bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
   scale_fill_manual(values = category_colors) +
   coord_flip() +
   labs(
-    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES IN ATLANTA, GA",
+    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES",
     subtitle = "Simplified Du Bois Reproduction",
-    x = NULL, y = NULL
+    x = NULL, y = "FOR FURTHER STATISTICS RAISE THIS FRAME"
   ) +
   theme_minimal(base_size = 12) +
   theme(
@@ -137,17 +125,31 @@ bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
     legend.title = element_blank(),
     legend.position = "top",
     legend.direction = "horizontal",
-    legend.justification = "center"
+    legend.justification = "center",
+    plot.background = element_rect(fill = "#f3eacb", color = NA)
   )
 
-# === COMBINE TABLE AND BAR PLOT ===
-label_table + bar_plot + plot_layout(widths = c(1.3, 3))
+# Combine and apply background to whole figure
+(label_table + bar_plot + plot_layout(widths = c(1.3, 3))) & 
+  theme(plot.background = element_rect(fill = "#f3eacb", color = NA))
 
 
 ```
 
 ```{r}
 unique(income$Class)
+```
+
+```{r}
+library(jpeg)
+library(grid)
+
+library(jpeg)
+library(grid)
+
+bg_img <- jpeg::readJPEG("images/parchment.jpg")  # already scaled correctly
+grid.newpage()
+grid.raster(bg_img)  # full 3-channel image
 ```
 
 ## 2 - COVID survey - interpret
