@@ -159,12 +159,98 @@ Students who received the flu vaccine gave more favorable responses to the surve
 
 As with previous examples, the causal relationship is unclear: do students trust vaccines and therefore choose to get vaccinated, or does the act of vaccination reinforce their trust? Further statistical testing would be needed to determine whether the same individuals make up both the flu and COVID vaccination cohorts.
 
+## 3 - COVID survey - reconstruct
+
 ```{r}
-#| label: label-me-2
+
+survey <- read_csv("data/covid-survey.csv", skip = 1)
+```
+
+```{r}
+
+dim(survey)
 
 ```
 
-## 3 - COVID survey - reconstruct
+```{r}
+
+survey_clean <- survey |>
+  filter(!if_all(-response_id, is.na))
+
+dim(survey_clean)
+```
+
+```{r}
+library(dplyr)
+
+survey_labeled <- survey_clean |>
+  mutate(
+    exp_already_vax = recode(exp_already_vax,
+      `0` = "No", `1` = "Yes"
+    ),
+    exp_flu_vax = recode(exp_flu_vax,
+      `0` = "No", `1` = "Yes"
+    ),
+    exp_profession = recode(exp_profession,
+      `0` = "Medical", `1` = "Nursing"
+    ),
+    exp_gender = recode(exp_gender,
+      `0` = "Male",
+      `1` = "Female",
+      `3` = "Non-binary / Third gender",
+      `4` = "Prefer not to say"
+    ),
+    exp_race = recode(exp_race,
+      `1` = "American Indian / Alaskan Native",
+      `2` = "Asian",
+      `3` = "Black / African American",
+      `4` = "Native Hawaiian / Other Pacific Islander",
+      `5` = "White"
+    ),
+    exp_ethnicity = recode(exp_ethnicity,
+      `1` = "Hispanic / Latino",
+      `2` = "Non-Hispanic / Non-Latino"
+    ),
+    exp_age_bin = recode(exp_age_bin,
+      `0` = "<20",
+      `20` = "21–25",
+      `25` = "26–30",
+      `30` = ">30"
+    )
+  )
+
+```
+
+```{r}
+
+dim(survey_labeled)
+```
+
+```{r}
+
+covid_survey_longer <- survey_labeled |>
+  pivot_longer(
+    cols = starts_with("exp_"),
+    names_to = "explanatory",
+    values_to = "explanatory_value"
+  ) |>
+  filter(!is.na(explanatory_value)) |>
+  pivot_longer(
+    cols = starts_with("resp_"),
+    names_to = "response",
+    values_to = "response_value"
+  )
+
+
+```
+
+The first pivot_longer reshapes the data from wide to long. All columns that begin with "exp\_" are turned into
+
+```{r}
+
+covid_survey_longer
+
+```
 
 ## 4 - COVID survey - re-reconstruct
 
