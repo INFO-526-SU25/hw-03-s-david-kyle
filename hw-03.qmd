@@ -155,7 +155,7 @@ Whether students got vaccinated because they held favorable views, or developed 
 
 #### Flu Vaccination as a Marker of Vaccine Trust
 
-Students who received the flu vaccine gave more favorable responses to the survey’s trust-related statements. Excluding statements one and four, they also showed noticeably less variance in their responses. This supports the idea that individuals who receive vaccines tend to have a general trust in vaccines and the approval process—whether or not they fully understand the details of that process.
+Students who received the flu vaccine gave more favorable responses to the survey’s trust-related statements. Excluding statements one and three, they also showed noticeably less variance in their responses. This supports the idea that individuals who receive vaccines tend to have a general trust in vaccines and the approval process—whether or not they fully understand the details of that process.
 
 As with previous examples, the causal relationship is unclear: do students trust vaccines and therefore choose to get vaccinated, or does the act of vaccination reinforce their trust? Further statistical testing would be needed to determine whether the same individuals make up both the flu and COVID vaccination cohorts.
 
