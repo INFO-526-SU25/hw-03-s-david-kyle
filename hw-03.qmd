@@ -27,7 +27,6 @@ pacman::p_load(tidyverse,
 
 ```{r}
 income <- read_csv("data/income.csv")
-glimpse(income)
 
 ```
 
@@ -136,23 +135,29 @@ bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
 
 ```
 
-```{r}
-unique(income$Class)
-```
-
-```{r}
-library(jpeg)
-library(grid)
-
-library(jpeg)
-library(grid)
-
-bg_img <- jpeg::readJPEG("images/parchment.jpg")  # already scaled correctly
-grid.newpage()
-grid.raster(bg_img)  # full 3-channel image
-```
-
 ## 2 - COVID survey - interpret
+
+This plot compares medical and nursing students’ responses to a series of statements about the COVID-19 vaccine. Responses are broken down by demographic and professional groups and displayed as a faceted Likert mean plot. Each point represents the mean Likert score for a subgroup, with error bars spanning the 10th to 90th percentile to show response variability.
+
+#### Directionality of Agreement by Statement
+
+Out of the six statements students responded to, five are positively framed. "I believe the vaccine is safe," strong agreement–score lower–means pro-belief in the vaccine. However, "I am concerned about the safety and side effects of the vaccine" is negatively framed–score lower means high concern.
+
+With the exception of side effects, these questions are *almost* the same so you would think they have the same, but flipped, scores. The error bars appear to be the same, but the mean of the positive statement is agreed upon much more than the negative sentiment is disagreed with.
+
+There are a few reasons this may be occurring; I'll mention two. First, agreeing with safety may be easier than disagreeing with concern, especially for people training in healthcare, where some level of risk is more accepted. Second, it’s just a survey, and disagreeing with a negatively worded statement requires more cognitive effort than simply agreeing with a positively framed one. Understanding that you’re rejecting a negative takes more mental processing than offering straightforward agreement.
+
+#### Vaccinated vs. Unvaccinated Respondents
+
+Across all response statements, students who reported being vaccinated show markedly more favorable attitudes toward the COVID-19 vaccine than those who were unvaccinated. With the exception of statements one and three, vaccinated students not only had more favorable mean scores, but also considerably less variance, as shown by the shorter error bars.
+
+Whether students got vaccinated because they held favorable views, or developed those views after getting vaccinated, is not entirely clear. Likely, it’s a bit of both. What does seem clear is that vaccination experience reinforces advocacy: among vaccinated students, the mean response is nearly perfectly favorable—with very little variation across individuals.
+
+#### Flu Vaccination as a Marker of Vaccine Trust
+
+Students who received the flu vaccine gave more favorable responses to the survey’s trust-related statements. Excluding statements one and four, they also showed noticeably less variance in their responses. This supports the idea that individuals who receive vaccines tend to have a general trust in vaccines and the approval process—whether or not they fully understand the details of that process.
+
+As with previous examples, the causal relationship is unclear: do students trust vaccines and therefore choose to get vaccinated, or does the act of vaccination reinforce their trust? Further statistical testing would be needed to determine whether the same individuals make up both the flu and COVID vaccination cohorts.
 
 ```{r}
 #| label: label-me-2
