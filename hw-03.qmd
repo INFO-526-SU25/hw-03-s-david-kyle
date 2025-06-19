@@ -289,10 +289,8 @@ covid_survey_summary_stats <- bind_rows(
   covid_survey_summary_stats_by_group
 )
 
-covid_survey_summary_stats2 <- covid_survey_summary_stats
 
 covid_survey_summary_stats |> glimpse()
-
 
 ```
 
@@ -454,5 +452,198 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
 ```
 
 ## 4 - COVID survey - re-reconstruct
+
+```{r}
+covid_survey_summary_stats_by_group_quar <- covid_survey_longer |>
+  group_by(explanatory, explanatory_value, response) |>
+  summarize(
+    mean = mean(response_value, na.rm = TRUE),
+    low  = quantile(response_value, 0.25, na.rm = TRUE),
+    high = quantile(response_value, 0.75, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+covid_survey_summary_stats_by_group_quar
+```
+
+```{r}
+covid_survey_summary_stats_all_quar <- covid_survey_longer |>
+  group_by(response) |>
+  summarize(
+    mean = mean(response_value, na.rm = TRUE),
+    low  = quantile(response_value, 0.25, na.rm = TRUE),
+    high = quantile(response_value, 0.75, na.rm = TRUE),
+    explanatory = "All",
+    explanatory_value = factor(""),
+    .groups = "drop"
+  )
+
+
+covid_survey_summary_stats_all_quar
+```
+
+```{r}
+covid_survey_summary_stats_quar <- bind_rows(
+  covid_survey_summary_stats_all_quar,
+  covid_survey_summary_stats_by_group_quar
+)
+
+
+covid_survey_summary_stats_quar |> glimpse()
+```
+
+```{r}
+#| fig-width: 9
+#| fig-height: 8
+
+response_labels <- c(
+  resp_safety = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
+  resp_confidence_science = "I am confident\nin the scientific\nvetting process\n for the new\nCOVID vaccines",
+  resp_feel_safe_at_work = "Getting the vaccine\nwil lmake me feel\nsafer at work",
+  resp_will_recommend = "I will recommend\nthe vaccine to\nfamily, friends,\n and community\nmembers",
+  resp_trust_info = "I trust the\ninformation that I\nhave received\nabout the\nvaccines",
+  resp_concern_safety = "I am concerned\nabout the safety\nand side effects\nof the vaccine"
+)
+
+covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
+  mutate(response = factor(response, levels = c(
+    "resp_safety",
+    "resp_feel_safe_at_work",
+    "resp_concern_safety",
+    "resp_confidence_science",
+    "resp_trust_info",
+    "resp_will_recommend"
+  )))
+
+explanatory_labels <- c(
+  exp_age_bin       = "Age",
+  exp_gender        = "Gender",
+  exp_race          = "Race",
+  exp_ethnicity     = "Ethnicity",
+  exp_profession    = "Profession",
+  exp_already_vax   = "Had COVID\nvaccine",
+  exp_flu_vax       = "Had flu\nvaccine this\nyear",
+  All               = "All"
+)
+
+covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
+  mutate(
+    explanatory = fct_relevel(
+      explanatory,
+      "All",
+      "exp_age_bin",
+      "exp_gender",
+      "exp_race",
+      "exp_ethnicity",
+      "exp_profession",
+      "exp_already_vax",
+      "exp_flu_vax"
+      
+    )
+  )
+
+covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
+  filter(
+    explanatory == "All" |
+    (explanatory == "exp_age_bin" & 
+       explanatory_value %in% c("<20", "21–25", "26–30", ">30")) |
+    (explanatory == "exp_gender" & 
+       explanatory_value %in% c("Male", 
+                                "Female", 
+                                "Non-binary / Third gender", 
+                                "Prefer not to say")) |
+    (explanatory == "exp_race" & 
+       explanatory_value %in% c("American Indian / Alaskan Native", 
+                                "Asian", 
+                                "Black / African American", 
+                                "Native Hawaiian / Other Pacific Islander", 
+                                "White")) |
+    (explanatory == "exp_ethnicity"   & 
+       explanatory_value %in% c("Hispanic / Latino", 
+                                "Non-Hispanic / Non-Latino")) |
+    (explanatory == "exp_profession"  & 
+       explanatory_value %in% c("Medical", 
+                                "Nursing")) |
+    (explanatory == "exp_already_vax" & explanatory_value %in% c("Yes", "No")) |
+    (explanatory == "exp_flu_vax"     & explanatory_value %in% c("Yes", "No"))
+  )
+
+
+covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
+  group_by(explanatory) |>
+  mutate(
+    explanatory_value = case_when(
+      explanatory == "exp_age_bin" ~ factor(explanatory_value, levels = c(
+        ">30", 
+        "26–30", 
+        "21–25", 
+        "<20")),
+      explanatory == "exp_gender" ~ factor(explanatory_value, levels = c(
+        "Prefer not to say", 
+        "Non-binary / Third gender", 
+        "Male", 
+        "Female" )),
+      explanatory == "exp_race" ~ factor(explanatory_value, levels = c(
+        "White",
+        "Native Hawaiian / Other Pacific Islander",
+        "Black / African American",
+        "Asian",
+        "American Indian / Alaskan Native")),
+      explanatory == "exp_ethnicity" ~ factor(explanatory_value, levels = c(
+        "Non-Hispanic / Non-Latino", 
+        "Hispanic / Latino")),
+      explanatory == "exp_profession" ~ factor(explanatory_value, levels = c(
+        "Nursing",
+        "Medical")),
+      explanatory == "exp_already_vax" ~ factor(explanatory_value, levels = c(
+        "Yes", 
+        "No")),
+      explanatory == "exp_flu_vax" ~ factor(explanatory_value, levels = c(
+        "Yes", 
+        "No")),
+      TRUE ~ factor(explanatory_value)
+    )
+  ) |>
+  ungroup()
+
+
+ggplot(covid_survey_summary_stats_quar, aes(y = fct_rev(explanatory_value), x = mean)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = low, xmax = high), height = 0.2) +
+  facet_grid(
+    rows = vars(explanatory),
+    cols = vars(response),
+    scales = "free_y",
+    labeller = labeller(
+      response = response_labels,
+      explanatory = explanatory_labels
+    ),
+    drop = TRUE
+  ) +
+  scale_x_continuous(breaks = 1:5, limits = c(1, 5)) +
+  theme_minimal() +
+  theme(
+    strip.background = element_rect(fill = "gray90", color = NA),
+    strip.text.y = element_text(size = 8, angle = 0),  
+    strip.text.x = element_text(size = 8, margin = margin(t = 10, b = 10)),
+    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 8),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  ) +
+  labs(
+    x = "Mean Likert Score\n(Error bars range from 25th to 75th percentile)",
+    y = NULL,
+    title =NULL
+  )
+```
+
+#### Comparison to 10th-90th Plot
+
+The interquartile range excludes more extreme responses, which results in narrower error bars. This makes the overall plot look tighter, making comparisons easier.
+
+The main conclusion that changed is that some answers which previously appeared to show moderate variance now show almost none when using the new plot. Responses to the question “*I will recommend the vaccine...*” are a good example. In the first plot, almost every group demonstrated a moderate amount of variance, while in the second plot, a majority show almost no variance at all.
 
 ## 5 - COVID survey - another view
