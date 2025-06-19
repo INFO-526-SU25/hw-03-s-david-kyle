@@ -304,7 +304,7 @@ response_labels <- c(
   resp_safety              = "Based on my\nunderstanding,I\nbelieve the\nvaccine is safe",
   resp_confidence_science  = "I am confident\nin the scientific\nvetting process\n for the new\nCOVID vaccines",
   resp_feel_safe_at_work   = "Getting the vaccine\nwil lmake me feel\nsafer at work",
-  resp_will_recommend      = "I will recommend\nthe vaccine to\nfamily, friends, and\ncommunity members",
+  resp_will_recommend      = "I will recommend\nthe vaccine to\nfamily, friends,\n and community\nmembers",
   resp_trust_info          = "I trust the\ninformation that I\nhave received\nabout the\nvaccines",
   resp_concern_safety      = "I am concerned\nabout the safety\nand side effects\nof the vaccine"
 )
@@ -326,8 +326,8 @@ explanatory_labels <- c(
   exp_race          = "Race",
   exp_ethnicity     = "Ethnicity",
   exp_profession    = "Profession",
-  exp_already_vax   = "Had COVID vaccine",
-  exp_flu_vax       = "Had flu vaccine this year",
+  exp_already_vax   = "Had COVID\nvaccine",
+  exp_flu_vax       = "Had flu\nvaccine this\nyear",
   All               = "All"
 )
 
@@ -407,7 +407,7 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
   theme_minimal() +
   theme(
     strip.background = element_rect(fill = "gray90", color = NA),
-    strip.text.y = element_text(size = 8),  # smaller font, taller strips
+    strip.text.y = element_text(size = 8, angle = 0),  # smaller font, taller strips
     strip.text.x = element_text(size = 8, margin = margin(t = 10, b = 10)),
     axis.text.y = element_text(size = 8),
     axis.text.x = element_text(size = 8),
