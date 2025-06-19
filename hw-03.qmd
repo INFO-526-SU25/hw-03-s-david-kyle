@@ -244,12 +244,242 @@ covid_survey_longer <- survey_labeled |>
 
 ```
 
-The first pivot_longer reshapes the data from wide to long. All columns that begin with "exp\_" are turned into
+The first pivot_longer reshapes the data from wide to long. All columns that begin with "exp\_" are turned into two columns, "explanatory" that holds the name of the variable and "explanatory_value" holds the actual value for that column.
+
+The second is also reshaping from wide to long. This time all columns that begin with "resp\_" are turned into two columns, "response" which is the name of the response question and "response_value" with the corresponding score.
 
 ```{r}
 
 covid_survey_longer
 
+```
+
+```{r}
+covid_survey_summary_stats_by_group <- covid_survey_longer |>
+  group_by(explanatory, explanatory_value, response) |>
+  summarize(
+    mean = mean(response_value, na.rm = TRUE),
+    low  = quantile(response_value, 0.10, na.rm = TRUE),
+    high = quantile(response_value, 0.90, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+covid_survey_summary_stats_by_group
+```
+
+```{r}
+covid_survey_summary_stats_all <- covid_survey_longer |>
+  group_by(response) |>
+  summarize(
+    mean = mean(response_value, na.rm = TRUE),
+    low  = quantile(response_value, 0.10, na.rm = TRUE),
+    high = quantile(response_value, 0.90, na.rm = TRUE),
+    explanatory = "All",
+    explanatory_value = factor(""),
+    .groups = "drop"
+  )
+
+
+covid_survey_summary_stats_all
+```
+
+```{r}
+covid_survey_summary_stats <- bind_rows(
+  covid_survey_summary_stats_all,
+  covid_survey_summary_stats_by_group
+)
+
+covid_survey_summary_stats2 <- covid_survey_summary_stats
+
+covid_survey_summary_stats |> glimpse()
+
+
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 8
+
+response_labels <- c(
+  resp_safety              = "Based on my understanding,\nI believe the vaccine is safe",
+  resp_confidence_science  = "I am confident in the scientific\nvetting process for the new COVID vaccines",
+  resp_feel_safe_at_work   = "Getting the vaccine will\nmake me feel safer at work",
+  resp_will_recommend      = "I will recommend the vaccine to\nfamily, friends, and community members",
+  resp_trust_info          = "I trust the information that I\nhave received about the vaccines",
+  resp_concern_safety      = "I am concerned about the safety\nand side effects of the vaccine"
+)
+
+explanatory_labels <- c(
+  exp_age_bin       = "Age",
+  exp_gender        = "Gender",
+  exp_race          = "Race",
+  exp_ethnicity     = "Ethnicity",
+  exp_profession    = "Profession",
+  exp_already_vax   = "Had COVID vaccine",
+  exp_flu_vax       = "Had flu vaccine this year",
+  All               = "All"
+)
+
+
+covid_survey_summary_stats <- covid_survey_summary_stats |>
+  mutate(
+    explanatory = fct_relevel(
+      explanatory,
+      "All",
+      "exp_age_bin",
+      "exp_gender",
+      "exp_race",
+      "exp_ethnicity",
+      "exp_profession",
+      "exp_already_vax",
+      "exp_flu_vax"
+      
+    )
+  )
+
+
+covid_survey_summary_stats <- covid_survey_summary_stats |>
+  filter(
+    explanatory == "All" |
+    (explanatory == "exp_age_bin"     & explanatory_value %in% c("<20", "21–25", "26–30", ">30")) |
+    (explanatory == "exp_gender"      & explanatory_value %in% c("Male", "Female", "Non-binary / Third gender", "Prefer not to say")) |
+    (explanatory == "exp_race"        & explanatory_value %in% c(
+      "American Indian / Alaskan Native", "Asian", "Black / African American",
+      "Native Hawaiian / Other Pacific Islander", "White")) |
+    (explanatory == "exp_ethnicity"   & explanatory_value %in% c("Hispanic / Latino", "Non-Hispanic / Non-Latino")) |
+    (explanatory == "exp_profession"  & explanatory_value %in% c("Medical", "Nursing")) |
+    (explanatory == "exp_already_vax" & explanatory_value %in% c("Yes", "No")) |
+    (explanatory == "exp_flu_vax"     & explanatory_value %in% c("Yes", "No"))
+  )
+
+
+covid_survey_summary_stats <- covid_survey_summary_stats |>
+  group_by(explanatory) |>
+  mutate(explanatory_value = factor(explanatory_value)) |>
+  ungroup()
+
+
+ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = low, xmax = high), height = 0.2) +
+  facet_grid(
+    rows = vars(explanatory),
+    cols = vars(response),
+    scales = "free_y",
+    labeller = labeller(
+      response = response_labels,
+      explanatory = explanatory_labels
+    ),
+    drop = TRUE
+  ) +
+  scale_x_continuous(breaks = 1:5, limits = c(1, 5)) +
+  theme_minimal() +
+  theme(
+    strip.background = element_rect(fill = "gray90", color = NA),
+    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 8),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) +
+  labs(
+    x = "Mean Likert Score (1 = Strongly Agree, 5 = Strongly Disagree)",
+    y = NULL,
+    title = "COVID-19 Vaccine Attitudes by Student Group"
+  )
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+# define scoped factor levels
+explanatory_levels <- list(
+  exp_age_bin     = c("<20", "21–25", "26–30", ">30"),
+  exp_gender      = c("Male", "Female", "Non-binary / Third gender", "Prefer not to say"),
+  exp_race        = c("American Indian / Alaskan Native", "Asian", "Black / African American",
+                      "Native Hawaiian / Other Pacific Islander", "White"),
+  exp_ethnicity   = c("Hispanic / Latino", "Non-Hispanic / Non-Latino"),
+  exp_profession  = c("Medical", "Nursing"),
+  exp_already_vax = c("Yes", "No"),
+  exp_flu_vax     = c("Yes", "No")
+)
+
+# apply scoped factor conversion
+covid_cleaned <- covid_survey_summary_stats2 |>
+  mutate(explanatory_value = as.character(explanatory_value)) |>
+  group_by(explanatory) |>
+  mutate(
+    explanatory_value = if (explanatory[1] %in% names(explanatory_levels)) {
+      factor(explanatory_value, levels = explanatory_levels[[explanatory[1]]])
+    } else {
+      factor(explanatory_value)
+    }
+  ) |>
+  ungroup()
+
+all_df <- covid_survey_summary_stats |>
+  filter(explanatory == "All") |>
+  mutate(explanatory_value = factor(as.character(explanatory_value)))
+
+covid_cleaned <- bind_rows(covid_cleaned, all_df)
+
+# let's just test and pray
+explanatory_groups <- names(explanatory_levels)
+
+for (group in explanatory_groups) {
+  cat("\n---", group, "---\n")
+  print(
+    covid_cleaned |>
+      filter(explanatory == group) |>
+      droplevels() |>
+      pull(explanatory_value) |>
+      levels()
+  )
+}
+
+covid_cleaned |>
+  count(explanatory) |>
+  print(n = Inf)
+
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
+```
+
+```{r}
 ```
 
 ## 4 - COVID survey - re-reconstruct
