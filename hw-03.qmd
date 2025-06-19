@@ -301,13 +301,24 @@ covid_survey_summary_stats |> glimpse()
 #| fig-height: 8
 
 response_labels <- c(
-  resp_safety              = "Based on my understanding,\nI believe the vaccine is safe",
-  resp_confidence_science  = "I am confident in the scientific\nvetting process for the new COVID vaccines",
-  resp_feel_safe_at_work   = "Getting the vaccine will\nmake me feel safer at work",
-  resp_will_recommend      = "I will recommend the vaccine to\nfamily, friends, and community members",
-  resp_trust_info          = "I trust the information that I\nhave received about the vaccines",
-  resp_concern_safety      = "I am concerned about the safety\nand side effects of the vaccine"
+  resp_safety              = "Based on my\nunderstanding,I\nbelieve the\nvaccine is safe",
+  resp_confidence_science  = "I am confident\nin the scientific\nvetting process\n for the new\nCOVID vaccines",
+  resp_feel_safe_at_work   = "Getting the vaccine\nwil lmake me feel\nsafer at work",
+  resp_will_recommend      = "I will recommend\nthe vaccine to\nfamily, friends, and\ncommunity members",
+  resp_trust_info          = "I trust the\ninformation that I\nhave received\nabout the\nvaccines",
+  resp_concern_safety      = "I am concerned\nabout the safety\nand side effects\nof the vaccine"
 )
+
+covid_survey_summary_stats <- covid_survey_summary_stats |>
+  mutate(response = factor(response, levels = c(
+    "resp_safety",
+    "resp_feel_safe_at_work",
+    "resp_concern_safety",
+    "resp_confidence_science",
+    
+    "resp_trust_info",
+    "resp_will_recommend"
+  )))
 
 explanatory_labels <- c(
   exp_age_bin       = "Age",
@@ -396,6 +407,8 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
   theme_minimal() +
   theme(
     strip.background = element_rect(fill = "gray90", color = NA),
+    strip.text.y = element_text(size = 8),  # smaller font, taller strips
+    strip.text.x = element_text(size = 8, margin = margin(t = 10, b = 10)),
     axis.text.y = element_text(size = 8),
     axis.text.x = element_text(size = 8),
     panel.grid.major.y = element_blank(),
@@ -409,14 +422,6 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
     title =NULL
   )
 
-
-```
-
-```{r}
-??facet_grid
-```
-
-```{r}
 
 ```
 
