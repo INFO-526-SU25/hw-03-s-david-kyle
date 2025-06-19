@@ -297,7 +297,7 @@ covid_survey_summary_stats |> glimpse()
 ```
 
 ```{r}
-#| fig-width: 10
+#| fig-width: 9
 #| fig-height: 8
 
 response_labels <- c(
@@ -379,19 +379,21 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
     axis.text.y = element_text(size = 8),
     axis.text.x = element_text(size = 8),
     panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank()
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
   ) +
   labs(
-    x = "Mean Likert Score (1 = Strongly Agree, 5 = Strongly Disagree)",
+    x = "Mean Likert Score\n(Error bars range from 10th to 90th percentile)",
     y = NULL,
-    title = "COVID-19 Vaccine Attitudes by Student Group"
+    title =NULL
   )
 
 
 ```
 
 ```{r}
-
+??facet_grid
 ```
 
 ```{r}
