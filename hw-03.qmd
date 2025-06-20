@@ -87,6 +87,7 @@ data_long <- income |>
     )))
   )
 
+
 data_long$measurement[data_long$measurement == 0] <- 0.1
 
 category_colors <- c(
@@ -129,7 +130,7 @@ bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
 # Combine and apply background to whole figure
 (label_table + bar_plot + plot_layout(widths = c(1.3, 3))) +
   plot_annotation(
-    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES",
+    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES IN ATLANTA",
     subtitle = "Simplified Du Bois Reproduction",
     theme = theme(
       plot.title = element_text(face = "bold", hjust = 0, size = 12),
@@ -669,16 +670,6 @@ likert_summary <- likert_long |>
 #| fig-width: 8
 #| fig-height: 5.5
 
-# define label mapping and desired order
-question_labels <- c(
-  resp_safety            = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
-  resp_feel_safe_at_work = "Getting the vaccine will\nmake me feel safer at work",
-  resp_concern_safety    = "I am concerned about the\nsafety and side effects\nof the vaccine",
-  resp_confidence_science = "I am confident in the\nscientific vetting process\n for the new\nCOVID vaccines",
-  resp_trust_info        = "I trust the information\nthat I have received\nabout the vaccines",
-  resp_will_recommend    = "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
-)
-
 question_order <- c(
   "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
   "Getting the vaccine will\nmake me feel safer at work",
@@ -688,25 +679,32 @@ question_order <- c(
   "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
 )
 
-# define score levels
+# define score levels 
 score_levels <- c("1", "2", "3", "5", "4")
 
-# apply label mapping, factor order
+# apply label mapping, factor order for the diverging chart
 likert_summary_div <- likert_summary |>
   mutate(
-    question = recode(question, !!!question_labels),
+    question = recode(question,
+  resp_safety = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
+  resp_feel_safe_at_work = "Getting the vaccine will\nmake me feel safer at work",
+  resp_concern_safety = "I am concerned about the\nsafety and side effects\nof the vaccine",
+  resp_confidence_science = "I am confident in the\nscientific vetting process\n for the new\nCOVID vaccines",
+  resp_trust_info = "I trust the information\nthat I have received\nabout the vaccines",
+  resp_will_recommend = "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
+),
     question = factor(question, levels = question_order),
     score = factor(score, levels = score_levels), # score factor levels updated here for plotting order
     percent_signed = ifelse(as.numeric(score) <= 3, percent, -percent)
   )
 
-score_levels_2 <- c("1", "2", "3", "4", "5")
+# need to set the levels back
+score_levels_hundo <- c("1", "2", "3", "4", "5")
 
-likert_summary_hundo <- likert_summary |>
+# this chart is basically the same, so we just overwrite the mutation elements
+likert_summary_hundo <- likert_summary_div |>
   mutate(
-    question = recode(question, !!!question_labels),
-    question = factor(question, levels = question_order),
-    score = factor(score, levels = score_levels_2), # score factor levels updated here for plotting order
+    score = factor(score, levels = score_levels_hundo), 
     percent_signed = ifelse(as.numeric(score) <= 5, percent, -percent)
   )
 
@@ -719,45 +717,30 @@ likert_colors <- c(
   "5" = "#ca0020"   
 )
 
-# plot
-div_plot <- ggplot(likert_summary_div, aes(x = percent_signed, y = question, fill = score)) +
-  geom_col(width = 0.8) +
-  scale_fill_manual(
-    values = likert_colors,
-    name = "Response",
-    breaks = c("1", "2", "3", "4", "5") 
-  ) +
-  scale_x_continuous(labels = abs, name = "Percentage of Responses") +
-  labs(
-    title = NULL,
-    y = NULL
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
-    axis.text.y = element_text(size = 10),
-    legend.position = "none"
-  )
+# the plots are basically the same so make a function
+make_likert_plot <- function(data, show_y_axis = TRUE) {
+  ggplot(data, aes(x = percent_signed, y = question, fill = score)) +
+    geom_col(width = 0.8) +
+    scale_fill_manual(
+      values = likert_colors,
+      name = "Response",
+      breaks = c("1", "2", "3", "4", "5")
+    ) +
+    scale_x_continuous(labels = abs, name = "Percentage of Responses") +
+    labs(title = NULL, y = NULL) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+      axis.text.y = if (show_y_axis) element_text(size = 10) else element_blank(),
+      legend.position = "none"
+    )
+}
 
-hundo_plot <- ggplot(likert_summary_hundo, aes(x = percent_signed, y = question, fill = score)) +
-  geom_col(width = 0.8) +
-  scale_fill_manual(
-    values = likert_colors,
-    name = "Response",
-    breaks = c("1", "2", "3", "4", "5") 
-  ) +
-  scale_x_continuous(labels = abs, name = "Percentage of Responses") +
-  labs(
-    title = NULL,
-    y = NULL
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
-    axis.text.y = element_blank(),
-    legend.position = "none"
-  )
+# call the function
+div_plot   <- make_likert_plot(likert_summary_div,  show_y_axis = TRUE)
+hundo_plot <- make_likert_plot(likert_summary_hundo, show_y_axis = FALSE)
 
+# stitch
 (div_plot +
    hundo_plot +
    plot_layout(widths = c(1, 1), guides = "collect") & 
