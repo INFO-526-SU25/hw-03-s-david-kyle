@@ -727,11 +727,19 @@ make_likert_plot <- function(data, show_y_axis = TRUE) {
     )
 }
 
-# call the function
+
+#| label: fig-diverging
+#| fig-alt: "Diverging bar chart showing COVID-19 vaccine attitudes. Each question is split by response category, with stronger agreement to the right and stronger disagreement to the left."
 div_plot   <- make_likert_plot(likert_summary_div,  show_y_axis = TRUE)
+
+#| label: fig-stacked
+#| fig-alt: "100% stacked bar chart showing full distribution of responses for each COVID-19 vaccine question."
 hundo_plot <- make_likert_plot(likert_summary_hundo, show_y_axis = FALSE)
 
 # stitch
+
+#| label: fig-combined
+#| fig-alt: "Side-by-side bar charts comparing COVID-19 vaccine attitudes: diverging layout on the left and 100% stacked layout on the right. Each bar represents the percent of responses to different questions."
 (div_plot +
    hundo_plot +
    plot_layout(widths = c(1, 1), guides = "collect") & 

@@ -2966,23 +2966,31 @@ vertical-align: -.125em;
 <span id="cb27-64"><a href="#cb27-64" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb27-65"><a href="#cb27-65" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-67"><a href="#cb27-67" aria-hidden="true" tabindex="-1"></a><span class="co"># call the function</span></span>
-<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a>div_plot   <span class="ot">&lt;-</span> <span class="fu">make_likert_plot</span>(likert_summary_div,  <span class="at">show_y_axis =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb27-69"><a href="#cb27-69" aria-hidden="true" tabindex="-1"></a>hundo_plot <span class="ot">&lt;-</span> <span class="fu">make_likert_plot</span>(likert_summary_hundo, <span class="at">show_y_axis =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb27-70"><a href="#cb27-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-71"><a href="#cb27-71" aria-hidden="true" tabindex="-1"></a><span class="co"># stitch</span></span>
-<span id="cb27-72"><a href="#cb27-72" aria-hidden="true" tabindex="-1"></a>(div_plot <span class="sc">+</span></span>
-<span id="cb27-73"><a href="#cb27-73" aria-hidden="true" tabindex="-1"></a>   hundo_plot <span class="sc">+</span></span>
-<span id="cb27-74"><a href="#cb27-74" aria-hidden="true" tabindex="-1"></a>   <span class="fu">plot_layout</span>(<span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="at">guides =</span> <span class="st">&quot;collect&quot;</span>) <span class="sc">&amp;</span> </span>
-<span id="cb27-75"><a href="#cb27-75" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</span>
-<span id="cb27-76"><a href="#cb27-76" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb27-77"><a href="#cb27-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
-<span id="cb27-78"><a href="#cb27-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;What people had to say about COVID-19 Vaccines&quot;</span>,</span>
-<span id="cb27-79"><a href="#cb27-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Survey using a Diverging bar plot and a 100% bar plot&quot;</span>,</span>
-<span id="cb27-80"><a href="#cb27-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme =</span> <span class="fu">theme</span>(</span>
-<span id="cb27-81"><a href="#cb27-81" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">hjust =</span> <span class="dv">0</span>)</span>
-<span id="cb27-82"><a href="#cb27-82" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb27-83"><a href="#cb27-83" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-67"><a href="#cb27-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-diverging</span></span>
+<span id="cb27-69"><a href="#cb27-69" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: &quot;Diverging bar chart showing COVID-19 vaccine attitudes. Each question is split by response category, with stronger agreement to the right and stronger disagreement to the left.&quot;</span></span>
+<span id="cb27-70"><a href="#cb27-70" aria-hidden="true" tabindex="-1"></a>div_plot   <span class="ot">&lt;-</span> <span class="fu">make_likert_plot</span>(likert_summary_div,  <span class="at">show_y_axis =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-71"><a href="#cb27-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-72"><a href="#cb27-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-stacked</span></span>
+<span id="cb27-73"><a href="#cb27-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: &quot;100% stacked bar chart showing full distribution of responses for each COVID-19 vaccine question.&quot;</span></span>
+<span id="cb27-74"><a href="#cb27-74" aria-hidden="true" tabindex="-1"></a>hundo_plot <span class="ot">&lt;-</span> <span class="fu">make_likert_plot</span>(likert_summary_hundo, <span class="at">show_y_axis =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb27-75"><a href="#cb27-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-76"><a href="#cb27-76" aria-hidden="true" tabindex="-1"></a><span class="co"># stitch</span></span>
+<span id="cb27-77"><a href="#cb27-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-78"><a href="#cb27-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-combined</span></span>
+<span id="cb27-79"><a href="#cb27-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: &quot;Side-by-side bar charts comparing COVID-19 vaccine attitudes: diverging layout on the left and 100% stacked layout on the right. Each bar represents the percent of responses to different questions.&quot;</span></span>
+<span id="cb27-80"><a href="#cb27-80" aria-hidden="true" tabindex="-1"></a>(div_plot <span class="sc">+</span></span>
+<span id="cb27-81"><a href="#cb27-81" aria-hidden="true" tabindex="-1"></a>   hundo_plot <span class="sc">+</span></span>
+<span id="cb27-82"><a href="#cb27-82" aria-hidden="true" tabindex="-1"></a>   <span class="fu">plot_layout</span>(<span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="at">guides =</span> <span class="st">&quot;collect&quot;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb27-83"><a href="#cb27-83" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>)</span>
+<span id="cb27-84"><a href="#cb27-84" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb27-85"><a href="#cb27-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(</span>
+<span id="cb27-86"><a href="#cb27-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;What people had to say about COVID-19 Vaccines&quot;</span>,</span>
+<span id="cb27-87"><a href="#cb27-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Survey using a Diverging bar plot and a 100% bar plot&quot;</span>,</span>
+<span id="cb27-88"><a href="#cb27-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">theme =</span> <span class="fu">theme</span>(</span>
+<span id="cb27-89"><a href="#cb27-89" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">hjust =</span> <span class="dv">0</span>)</span>
+<span id="cb27-90"><a href="#cb27-90" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb27-91"><a href="#cb27-91" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
