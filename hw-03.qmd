@@ -666,7 +666,6 @@ likert_summary <- likert_long |>
 ```
 
 ```{r}
-
 #| fig-width: 8
 #| fig-height: 5.5
 
