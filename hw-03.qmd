@@ -181,7 +181,7 @@ dim(survey_clean)
 ```
 
 ```{r}
-library(dplyr)
+
 
 survey_labeled <- survey_clean |>
   mutate(
@@ -288,9 +288,6 @@ covid_survey_summary_stats <- bind_rows(
   covid_survey_summary_stats_all,
   covid_survey_summary_stats_by_group
 )
-
-
-covid_survey_summary_stats |> glimpse()
 
 ```
 
@@ -444,13 +441,6 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
 
 ```
 
-```{r}
-
-```
-
-```{r}
-```
-
 ## 4 - COVID survey - re-reconstruct
 
 ```{r}
@@ -488,8 +478,6 @@ covid_survey_summary_stats_quar <- bind_rows(
   covid_survey_summary_stats_by_group_quar
 )
 
-
-covid_survey_summary_stats_quar |> glimpse()
 ```
 
 ```{r}
@@ -647,3 +635,93 @@ The interquartile range excludes more extreme responses, which results in narrow
 The main conclusion that changed is that some answers which previously appeared to show moderate variance now show almost none when using the new plot. Responses to the question “*I will recommend the vaccine...*” are a good example. In the first plot, almost every group demonstrated a moderate amount of variance, while in the second plot, a majority show almost no variance at all.
 
 ## 5 - COVID survey - another view
+
+```{r}
+# Step 1: Pivot longer to get all responses in one column
+likert_long <- survey_labeled |>
+  select(starts_with("resp_")) |>
+  pivot_longer(
+    everything(),
+    names_to = "question",
+    values_to = "score"
+  ) |>
+  filter(!is.na(score))  # Remove any missing responses
+
+# Step 2: Count responses per question and score
+likert_summary <- likert_long |>
+  group_by(question, score) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(question) |>
+  mutate(
+    percent = n / sum(n) * 100,
+    score = factor(score, levels = 1:5)  # ensure correct order
+  )
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5.5
+
+# define label mapping and desired order
+question_labels <- c(
+  resp_safety            = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
+  resp_feel_safe_at_work = "Getting the vaccine will\nmake me feel safer at work",
+  resp_concern_safety    = "I am concerned about the\nsafety and side effects\nof the vaccine",
+  resp_confidence_science = "I am confident in the\nscientific vetting process\n for the new\nCOVID vaccines",
+  resp_trust_info        = "I trust the information\nthat I have received\nabout the vaccines",
+  resp_will_recommend    = "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
+)
+
+question_order <- c(
+  "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
+  "Getting the vaccine will\nmake me feel safer at work",
+  "I am concerned about the\nsafety and side effects\nof the vaccine",
+  "I am confident in the\nscientific vetting process\n for the new\nCOVID vaccines",
+  "I trust the information\nthat I have received\nabout the vaccines",
+  "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
+)
+
+# define score levels
+score_levels <- c("1", "2", "3", "5", "4")
+
+# apply label mapping, factor order
+likert_summary <- likert_summary |>
+  mutate(
+    question = recode(question, !!!question_labels),
+    question = factor(question, levels = question_order),
+    score = factor(score, levels = score_levels), # score factor levels updated here for plotting order
+    percent_signed = ifelse(as.numeric(score) <= 3, percent, -percent)
+  )
+
+# color palette 
+likert_colors <- c(
+  "1" = "#67a9cf",  
+  "2" = "#009E73",  
+  "3" = "#F0E442",  
+  "4" = "#E69F00",  
+  "5" = "#ca0020"   
+)
+
+# plot
+ggplot(likert_summary, aes(x = percent_signed, y = question, fill = score)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(
+    values = likert_colors,
+    name = "Response",
+    breaks = c("1", "2", "3", "4", "5") # Force the legend order to be numerical here
+  ) +
+  scale_x_continuous(labels = abs, name = "Percentage of Responses") +
+  labs(
+    title = "COVID-19 Vaccine Attitudes by Question",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    axis.text.y = element_text(size = 10),
+    legend.position = "bottom"
+  )
+
+
+
+```
