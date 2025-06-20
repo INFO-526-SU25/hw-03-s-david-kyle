@@ -20,7 +20,10 @@ if (!require("pacman"))
   install.packages("pacman")
 
 pacman::p_load(tidyverse,
-               patchwork               )
+               patchwork,
+               jpeg,
+               grid,
+               cowplot)
 ```
 
 ## 1 - Du Bois challenge.
@@ -31,116 +34,104 @@ income <- read_csv("data/income.csv")
 ```
 
 ```{r}
-
-# Recode final class label for line break
+# recode label for line break
 income <- income |>
-  mutate(
-    Class = recode(Class, "$1000 AND OVER" = "$1000\nAND OVER")
-  )
+  mutate(Class = recode(Class, "$1000 AND OVER" = "$1000\nAND OVER"))
+
+# create factor levels
+class_levels <- rev(c(
+  "$100-200", "$200-300", "$300-400", "$400-500",
+  "$500-750", "$750-1000", "$1000\nAND OVER"
+))
 
 # left table
 label_table <- income |>
-  mutate(
-    Class = factor(Class, levels = rev(c(
-      "$100-200", "$200-300", "$300-400", "$400-500",
-      "$500-750", "$750-1000", "$1000\nAND OVER"
-    ))),
-    row = as.numeric(Class)
-  ) |>
+  mutate(Class = factor(Class, levels = class_levels)) |>
   ggplot(aes(y = Class)) +
-  geom_tile(aes(x = 1.5, width = 2, height = 1), fill = NA, color = "black") +
-  geom_segment(
-    data = tibble(y = seq(0.5, 7.5, 1)),
-    aes(x = 0.9, xend = 2.9, y = y, yend = y),
-    inherit.aes = FALSE,
-    color = "gray70", linewidth = 0.2
-  ) +
-  geom_segment(
-    data = tibble(x = c(0.9, 1.95, 2.9)),
-    aes(x = x, xend = x, y = 0.5, yend = 7.5),
-    inherit.aes = FALSE,
-    color = "gray70", linewidth = 0.2
-  ) +
-  geom_text(aes(x = 1, label = Class), hjust = 0, size = 3.2, fontface = "bold", family = "mono") +
-  geom_text(aes(x = 2, label = paste0("$", Average_Income)), hjust = 0, size = 3.2, family = "mono") +
-  scale_y_discrete(limits = rev(c(
-    "$100-200", "$200-300", "$300-400", "$400-500",
-    "$500-750", "$750-1000", "$1000\nAND OVER"
-  ))) +
+  # grid lines
+  geom_segment(data = tibble(y = seq(0.5, 7.5, 1)),
+               aes(x = 0.9, xend = 2.9, y = y, yend = y),
+               inherit.aes = FALSE, color = "gray70", linewidth = 0.2) +
+  geom_segment(data = tibble(x = c(0.9, 1.95, 2.9)),
+               aes(x = x, xend = x, y = 0.5, yend = 7.5),
+               inherit.aes = FALSE, color = "gray70", linewidth = 0.2) +
+  # class and income text
+  geom_text(aes(x = 1, label = Class), 
+            hjust = 0, size = 3.2, fontface = "bold", family = "mono") +
+  geom_text(aes(x = 2, label = paste0("$", Average_Income)), 
+            hjust = 0, size = 3.2, family = "mono") +
+  scale_y_discrete(limits = class_levels) +
   xlim(0.9, 2.9) +
-  labs(title = NULL, x = NULL, y = NULL) +
   theme_void() +
   theme(
     plot.margin = margin(5, 0, 5, 5),
     axis.text.y = element_blank(),
-    plot.background = element_rect(fill = "#f3eacb", color = NA)
+    plot.background = element_rect(fill = NA, color = NA)
   )
 
-# bar chart
+# data prep chart data
 data_long <- income |>
   pivot_longer(cols = Rent:Other, names_to = "type", values_to = "measurement") |>
   mutate(
     type = factor(type, levels = c("Rent", "Food", "Clothes", "Tax", "Other")),
-    Class = factor(Class, levels = rev(c(
-      "$100-200", "$200-300", "$300-400", "$400-500",
-      "$500-750", "$750-1000", "$1000\nAND OVER"
-    )))
+    Class = factor(Class, levels = class_levels)
   )
 
-
+# get rid of noise
 data_long$measurement[data_long$measurement == 0] <- 0.1
 
+# our colors
 category_colors <- c(
-  Rent = "black",
-  Food = "mediumorchid4",
+  Rent = "black", 
+  Food = "mediumorchid4", 
   Clothes = "lightsalmon1",
   Tax = "slategray3",
   Other = "gray75"
 )
 
+# our plot
 bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
   geom_bar(stat = "identity", width = 0.8) +
   geom_text(
     aes(label = ifelse(measurement >= 1, paste0(measurement, "%"), "")),
     position = position_stack(vjust = 0.5),
-    size = 3,
-    color = "white"
+    size = 3, color = "white"
   ) +
   scale_y_reverse() +
   scale_fill_manual(values = category_colors) +
   coord_flip() +
-  labs(
-    x = NULL, y = "FOR FURTHER STATISTICS RAISE THIS FRAME"
-  ) +
+  labs(x = NULL, y = "FOR FURTHER STATISTICS RAISE THIS FRAME") +
   theme_minimal(base_size = 12) +
   theme(
-    plot.title = element_text(face = "bold", hjust = 0, size = 12),
-    axis.text.y = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
     legend.title = element_blank(),
     legend.position = "top",
     legend.direction = "horizontal",
     legend.justification = "center",
-    plot.background = element_rect(fill = "#f3eacb", color = NA)
+    plot.background = element_rect(fill = NA, color = NA)
   )
 
-# Combine and apply background to whole figure
-(label_table + bar_plot + plot_layout(widths = c(1.3, 3))) +
+bg_img <- readJPEG("images/parchment.jpg")
+parchment_grob <- rasterGrob(bg_img, width = unit(1, "npc"), height = unit(1, "npc"))
+
+# stitch
+final_plot <- (label_table + bar_plot + plot_layout(widths = c(1.3, 3))) +
   plot_annotation(
     title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES IN ATLANTA",
     subtitle = "Simplified Du Bois Reproduction",
     theme = theme(
       plot.title = element_text(face = "bold", hjust = 0, size = 12),
       plot.subtitle = element_text(hjust = 0),
-      plot.background = element_rect(fill = "#f3eacb", color = NA)
+      plot.background = element_rect(fill = "transparent", color = NA)
     )
   )
 
-
-
+# draw plot on parchment image
+ggdraw() +
+  draw_grob(parchment_grob) +
+  draw_plot(final_plot)
 ```
 
 ## 2 - COVID survey - interpret
