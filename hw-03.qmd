@@ -26,7 +26,9 @@ pacman::p_load(tidyverse,
                cowplot)
 ```
 
-## 1 - Du Bois challenge.
+## 1 - Du Bois [^1]
+
+[^1]: AI was used for assistance in this project. It was used for code clarification, exception explanations, and discussions on how grid, cowplot, and other packages operate. I used code snippets only when I was unable to resolve an issue independently. All text is authored exclusively by me.
 
 ```{r}
 income <- read_csv("data/income.csv")
