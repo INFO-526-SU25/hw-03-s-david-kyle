@@ -109,8 +109,6 @@ bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
   scale_fill_manual(values = category_colors) +
   coord_flip() +
   labs(
-    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES",
-    subtitle = "Simplified Du Bois Reproduction",
     x = NULL, y = "FOR FURTHER STATISTICS RAISE THIS FRAME"
   ) +
   theme_minimal(base_size = 12) +
@@ -129,8 +127,17 @@ bar_plot <- ggplot(data_long, aes(x = Class, y = measurement, fill = type)) +
   )
 
 # Combine and apply background to whole figure
-(label_table + bar_plot + plot_layout(widths = c(1.3, 3))) & 
-  theme(plot.background = element_rect(fill = "#f3eacb", color = NA))
+(label_table + bar_plot + plot_layout(widths = c(1.3, 3))) +
+  plot_annotation(
+    title = "INCOME AND EXPENDITURE OF 150 BLACK FAMILIES",
+    subtitle = "Simplified Du Bois Reproduction",
+    theme = theme(
+      plot.title = element_text(face = "bold", hjust = 0, size = 12),
+      plot.subtitle = element_text(hjust = 0),
+      plot.background = element_rect(fill = "#f3eacb", color = NA)
+    )
+  )
+
 
 
 ```
@@ -690,7 +697,7 @@ likert_summary <- likert_summary |>
     question = recode(question, !!!question_labels),
     question = factor(question, levels = question_order),
     score = factor(score, levels = score_levels), # score factor levels updated here for plotting order
-    percent_signed = ifelse(as.numeric(score) <= 3, percent, -percent)
+    percent_signed = ifelse(as.numeric(score) <= 5, percent, -percent)
   )
 
 # color palette 
@@ -721,7 +728,107 @@ ggplot(likert_summary, aes(x = percent_signed, y = question, fill = score)) +
     axis.text.y = element_text(size = 10),
     legend.position = "bottom"
   )
+#| fig-width: 8
+#| fig-height: 5.5
 
+# define label mapping and desired order
+question_labels <- c(
+  resp_safety            = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
+  resp_feel_safe_at_work = "Getting the vaccine will\nmake me feel safer at work",
+  resp_concern_safety    = "I am concerned about the\nsafety and side effects\nof the vaccine",
+  resp_confidence_science = "I am confident in the\nscientific vetting process\n for the new\nCOVID vaccines",
+  resp_trust_info        = "I trust the information\nthat I have received\nabout the vaccines",
+  resp_will_recommend    = "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
+)
 
+question_order <- c(
+  "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
+  "Getting the vaccine will\nmake me feel safer at work",
+  "I am concerned about the\nsafety and side effects\nof the vaccine",
+  "I am confident in the\nscientific vetting process\n for the new\nCOVID vaccines",
+  "I trust the information\nthat I have received\nabout the vaccines",
+  "I will recommend the\nvaccine to family,\nfriends,  and community\nmembers"
+)
+
+# define score levels
+score_levels <- c("1", "2", "3", "5", "4")
+
+# apply label mapping, factor order
+likert_summary_div <- likert_summary |>
+  mutate(
+    question = recode(question, !!!question_labels),
+    question = factor(question, levels = question_order),
+    score = factor(score, levels = score_levels), # score factor levels updated here for plotting order
+    percent_signed = ifelse(as.numeric(score) <= 3, percent, -percent)
+  )
+
+likert_summary_hundo <- likert_summary |>
+  mutate(
+    question = recode(question, !!!question_labels),
+    question = factor(question, levels = question_order),
+    score = factor(score, levels = score_levels), # score factor levels updated here for plotting order
+    percent_signed = ifelse(as.numeric(score) <= 5, percent, -percent)
+  )
+
+# color palette 
+likert_colors <- c(
+  "1" = "#67a9cf",  
+  "2" = "#009E73",  
+  "3" = "#F0E442",  
+  "4" = "#E69F00",  
+  "5" = "#ca0020"   
+)
+
+# plot
+div_plot <- ggplot(likert_summary_div, aes(x = percent_signed, y = question, fill = score)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(
+    values = likert_colors,
+    name = "Response",
+    breaks = c("1", "2", "3", "4", "5") # Force the legend order to be numerical here
+  ) +
+  scale_x_continuous(labels = abs, name = "Percentage of Responses") +
+  labs(
+    title = NULL,
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    axis.text.y = element_text(size = 10),
+    legend.position = "none"
+  )
+
+hundo_plot <- ggplot(likert_summary_hundo, aes(x = percent_signed, y = question, fill = score)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(
+    values = likert_colors,
+    name = "Response",
+    breaks = c("1", "2", "3", "4", "5") # Force the legend order to be numerical here
+  ) +
+  scale_x_continuous(labels = abs, name = "Percentage of Responses") +
+  labs(
+    title = NULL,
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    axis.text.y = element_blank(),
+    legend.position = "none"
+  )
+
+(div_plot +
+   hundo_plot +
+   plot_layout(widths = c(1, 1), guides = "collect") & 
+   theme(legend.position = "bottom")
+) +
+  plot_annotation(
+    title = "What people had to say about COVID-19 Vaccines",
+    subtitle = "Survey using a Diverging bar plot and a 100% bar plot",
+    theme = theme(
+      plot.title = element_text(face = "bold", size = 16, hjust = 0)
+    )
+  )
 
 ```
