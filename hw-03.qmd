@@ -700,11 +700,13 @@ likert_summary_div <- likert_summary |>
     percent_signed = ifelse(as.numeric(score) <= 3, percent, -percent)
   )
 
+score_levels_2 <- c("1", "2", "3", "4", "5")
+
 likert_summary_hundo <- likert_summary |>
   mutate(
     question = recode(question, !!!question_labels),
     question = factor(question, levels = question_order),
-    score = factor(score, levels = score_levels), # score factor levels updated here for plotting order
+    score = factor(score, levels = score_levels_2), # score factor levels updated here for plotting order
     percent_signed = ifelse(as.numeric(score) <= 5, percent, -percent)
   )
 
@@ -742,7 +744,7 @@ hundo_plot <- ggplot(likert_summary_hundo, aes(x = percent_signed, y = question,
   scale_fill_manual(
     values = likert_colors,
     name = "Response",
-    breaks = c("1", "2", "3", "4", "5") # Force the legend order to be numerical here
+    breaks = c("1", "2", "3", "4", "5") 
   ) +
   scale_x_continuous(labels = abs, name = "Percentage of Responses") +
   labs(
@@ -770,3 +772,7 @@ hundo_plot <- ggplot(likert_summary_hundo, aes(x = percent_signed, y = question,
   )
 
 ```
+
+#### Comparing the charts
+
+The diverging bar chart communicates sentiment across question and whether opinions are positive or negative. The 100% bar chart communicates how diverse opinions are. One shows direction and the other shows distribution.
