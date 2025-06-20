@@ -748,8 +748,10 @@ hundo_plot <- make_likert_plot(likert_summary_hundo, show_y_axis = FALSE)
   plot_annotation(
     title = "What people had to say about COVID-19 Vaccines",
     subtitle = "Survey using a Diverging bar plot and a 100% bar plot",
+    caption = "Likert scale from 1 (Strongly Disagree) to 5 (Strongly Agree).",
     theme = theme(
-      plot.title = element_text(face = "bold", size = 16, hjust = 0)
+      plot.title = element_text(face = "bold", size = 16, hjust = 0),
+      plot.caption = element_text(size = 11, hjust = 0.74, margin = margin(t = 1)),
     )
   )
 
