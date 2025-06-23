@@ -296,6 +296,7 @@ covid_survey_summary_stats <- bind_rows(
 #| fig-width: 9
 #| fig-height: 8
 
+# labels for responses--facets
 response_labels <- c(
   resp_safety = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
   resp_confidence_science = "I am confident\nin the scientific\nvetting process\n for the new\nCOVID vaccines",
@@ -305,6 +306,7 @@ response_labels <- c(
   resp_concern_safety = "I am concerned\nabout the safety\nand side effects\nof the vaccine"
 )
 
+# factor level order for response variable
 covid_survey_summary_stats <- covid_survey_summary_stats |>
   mutate(response = factor(response, levels = c(
     "resp_safety",
@@ -315,6 +317,7 @@ covid_survey_summary_stats <- covid_survey_summary_stats |>
     "resp_will_recommend"
   )))
 
+# labels for explanatory variables
 explanatory_labels <- c(
   exp_age_bin       = "Age",
   exp_gender        = "Gender",
@@ -326,6 +329,7 @@ explanatory_labels <- c(
   All               = "All"
 )
 
+# row facet order
 covid_survey_summary_stats <- covid_survey_summary_stats |>
   mutate(
     explanatory = fct_relevel(
@@ -342,6 +346,7 @@ covid_survey_summary_stats <- covid_survey_summary_stats |>
     )
   )
 
+# filter dataset for levels 
 covid_survey_summary_stats <- covid_survey_summary_stats |>
   filter(
     explanatory == "All" |
@@ -368,7 +373,7 @@ covid_survey_summary_stats <- covid_survey_summary_stats |>
     (explanatory == "exp_flu_vax"     & explanatory_value %in% c("Yes", "No"))
   )
 
-
+# reorder explanatory_value within the group
 covid_survey_summary_stats <- covid_survey_summary_stats |>
   group_by(explanatory) |>
   mutate(
@@ -406,7 +411,7 @@ covid_survey_summary_stats <- covid_survey_summary_stats |>
   ) |>
   ungroup()
 
-
+# and we plot
 ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)) +
   geom_point() +
   geom_errorbarh(aes(xmin = low, xmax = high), height = 0.2) +
@@ -445,6 +450,7 @@ ggplot(covid_survey_summary_stats, aes(y = fct_rev(explanatory_value), x = mean)
 ## 4 - COVID survey - re-reconstruct
 
 ```{r}
+# change the range to 0.25-0.75
 covid_survey_summary_stats_by_group_quar <- covid_survey_longer |>
   group_by(explanatory, explanatory_value, response) |>
   summarize(
@@ -458,6 +464,7 @@ covid_survey_summary_stats_by_group_quar
 ```
 
 ```{r}
+# change the range to 0.25-0.75
 covid_survey_summary_stats_all_quar <- covid_survey_longer |>
   group_by(response) |>
   summarize(
@@ -474,6 +481,7 @@ covid_survey_summary_stats_all_quar
 ```
 
 ```{r}
+# combine the dataframes
 covid_survey_summary_stats_quar <- bind_rows(
   covid_survey_summary_stats_all_quar,
   covid_survey_summary_stats_by_group_quar
@@ -485,6 +493,7 @@ covid_survey_summary_stats_quar <- bind_rows(
 #| fig-width: 9
 #| fig-height: 8
 
+# labels for responses--facets
 response_labels <- c(
   resp_safety = "Based on my\nunderstanding, I\nbelieve the\nvaccine is safe",
   resp_confidence_science = "I am confident\nin the scientific\nvetting process\n for the new\nCOVID vaccines",
@@ -494,6 +503,7 @@ response_labels <- c(
   resp_concern_safety = "I am concerned\nabout the safety\nand side effects\nof the vaccine"
 )
 
+# factor level order for response variable
 covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
   mutate(response = factor(response, levels = c(
     "resp_safety",
@@ -504,6 +514,7 @@ covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
     "resp_will_recommend"
   )))
 
+# labels for explanatory variables
 explanatory_labels <- c(
   exp_age_bin       = "Age",
   exp_gender        = "Gender",
@@ -515,6 +526,7 @@ explanatory_labels <- c(
   All               = "All"
 )
 
+# row facet order
 covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
   mutate(
     explanatory = fct_relevel(
@@ -531,6 +543,7 @@ covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
     )
   )
 
+# filter dataset for levels 
 covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
   filter(
     explanatory == "All" |
@@ -557,7 +570,7 @@ covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
     (explanatory == "exp_flu_vax"     & explanatory_value %in% c("Yes", "No"))
   )
 
-
+# reorder explanatory_value within the group
 covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
   group_by(explanatory) |>
   mutate(
@@ -595,7 +608,7 @@ covid_survey_summary_stats_quar <- covid_survey_summary_stats_quar |>
   ) |>
   ungroup()
 
-
+# and we plot
 ggplot(covid_survey_summary_stats_quar, aes(y = fct_rev(explanatory_value), x = mean)) +
   geom_point() +
   geom_errorbarh(aes(xmin = low, xmax = high), height = 0.2) +
@@ -638,7 +651,7 @@ The main conclusion that changed is that some answers which previously appeared 
 ## 5 - COVID survey - another view
 
 ```{r}
-# Step 1: Pivot longer to get all responses in one column
+# pivot longer to get all responses in one column
 likert_long <- survey_labeled |>
   select(starts_with("resp_")) |>
   pivot_longer(
@@ -648,7 +661,7 @@ likert_long <- survey_labeled |>
   ) |>
   filter(!is.na(score))  # Remove any missing responses
 
-# Step 2: Count responses per question and score
+# count responses per question and score
 likert_summary <- likert_long |>
   group_by(question, score) |>
   summarise(n = n(), .groups = "drop") |>
