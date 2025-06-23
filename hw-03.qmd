@@ -150,7 +150,7 @@ There are a few reasons this may be occurring; I'll mention two. First, agreeing
 
 #### Vaccinated vs. Unvaccinated Respondents
 
-Across all response statements, students who reported being vaccinated show markedly more favorable attitudes toward the COVID-19 vaccine than those who were unvaccinated. With the exception of statements one and three, vaccinated students not only had more favorable mean scores, but also considerably less variance, as shown by the shorter error bars.
+Across all response statements, students who reported being vaccinated for COVID-19 show markedly more favorable attitudes toward the COVID-19 vaccine than those who were unvaccinated. With the exception of statements one and three, vaccinated students not only had more favorable mean scores, but also considerably less variance, as shown by the shorter error bars.
 
 Whether students got vaccinated because they held favorable views, or developed those views after getting vaccinated, is not entirely clear. Likely, it’s a bit of both. What does seem clear is that vaccination experience reinforces advocacy: among vaccinated students, the mean response is nearly perfectly favorable—with very little variation across individuals.
 
@@ -771,6 +771,8 @@ hundo_plot <- make_likert_plot(likert_summary_hundo, show_y_axis = FALSE)
   )
 
 ```
+
+Inspiration for formatting, labeling, and titling taken from Dr. Greg Chism INFO-526-su25
 
 #### Comparing the charts
 
