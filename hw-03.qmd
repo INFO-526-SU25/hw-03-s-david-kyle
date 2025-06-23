@@ -724,7 +724,7 @@ make_likert_plot <- function(data, show_y_axis = TRUE) {
     theme_minimal() +
     theme(
       plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
-      axis.text.y = if (show_y_axis) element_text(size = 10) else element_blank(),
+      axis.text.y = if (show_y_axis) element_text(size = 9) else element_blank(),
       legend.position = "none"
     )
 }
